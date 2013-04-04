@@ -8,7 +8,7 @@
   },
   "app": {
     "background": {
-      "scripts": ["lib/minimatch.js","index.js"]
+      "scripts": ["lib/minimatch.js","lib/spoke.js/spoke.js","index.js"]
     }
   },
   "permissions": ["experimental", {"socket":["tcp-connect", "tcp-listen"]}]
