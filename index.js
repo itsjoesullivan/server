@@ -1,12 +1,3 @@
-
-
-
-
-
-
-
-
-
 /*app.get('*', function(req,res) {
 	spoke({
 		verb:'read',
@@ -132,6 +123,7 @@ App.prototype.listen = function(port) {
 
 
 
+
 switch(env) {
 	case 'test':
 		if(typeof module !== 'undefined') {
@@ -146,17 +138,30 @@ switch(env) {
 		var app = new App();
 
 		app.get('**', function(req,res) {
-			res.send({
-				data: 'hello',
-				type: '.txt'
+			spoke({
+				verb: 'read',
+				noun: req.path
+			},function(obj) {
+				res.send(obj);
 			});
 		});
 
 		app.listen(3000);
 		break;
-	
 }
 
 
-
+spoke.register({
+	verb: 'read',
+	noun: '**'
+}, function(req,cb) {
+	console.log(arguments);
+	if(typeof cb === 'function') {
+		cb({
+			data: "This is server.",
+			name: '.txt'
+		})
+	}
+	
+})
 
