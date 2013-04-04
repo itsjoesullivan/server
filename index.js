@@ -1,34 +1,10 @@
-var str2buf = function(str) {
-	var buffer = new ArrayBuffer(str.length + 1),
-		bufferView = new Uint8Array(buffer);
-	for (var i = 0, strLen = str.length; i < strLen; i++) {
-		bufferView[i] = str.charCodeAt(i);
-	}
-	return buffer;
-}
 
-var buf2str = function(buffer) {
-	var str = '',
-		uArrayVal = new Uint8Array(buffer);
-	for (var s = 0; s < uArrayVal.length; s++) {
-		str += String.fromCharCode(uArrayVal[s]);
-	}
-	return str;
-};
 
-var str2arr = function(string) {
-	var buffer = new ArrayBuffer(string.length),
-		view = new Uint8Array(buffer);
-	for (var i = 0; i < string.length; i++) {
-		view[i] = string.charCodeAt(i);
-	}
-	return view;
-};
 
-var typeMap = {
-	'.js': 'application/javascript',
-	'.txt.': 'text/plain'
-};
+
+
+
+
 
 
 /*app.get('*', function(req,res) {
@@ -69,14 +45,36 @@ Res = function(obj) {
 	this.writeHandler = obj.writeHandler;
 };
 Res.prototype.send = function(file) {
-	var fileBuffer = str2buf(file.data);
-	var header = str2arr("HTTP:/1.0 200 OK\nContent-length: " + file.data.length + "\nContent-type:" + typeMap[file.type] + '\n\n');
-	var outputBuffer = new ArrayBuffer(header.byteLength + fileBuffer.byteLength);
-	var view = new Uint8Array(outputBuffer);
+	var str2buf = function(str) {
+		var buffer = new ArrayBuffer(str.length + 1),
+			bufferView = new Uint8Array(buffer);
+		for (var i = 0, strLen = str.length; i < strLen; i++) {
+			bufferView[i] = str.charCodeAt(i);
+		}
+		return buffer;
+	},
+	str2arr = function(string) {
+		var buffer = new ArrayBuffer(string.length),
+			view = new Uint8Array(buffer);
+		for (var i = 0; i < string.length; i++) {
+			view[i] = string.charCodeAt(i);
+		}
+		return view;
+	},
+	typeMap = {
+		'.js': 'application/javascript',
+		'.txt.': 'text/plain',
+		'.html': 'text/html',
+		'.jpg': 'image/jpeg',
+		'.jpeg': 'image/jpeg'
+	},
+	fileBuffer = str2buf(file.data),
+	header = str2arr("HTTP:/1.0 200 OK\nContent-length: " + file.data.length + "\nContent-type:" + (typeMap[file.type] || 'text/plain') + '\n\n'),
+	outputBuffer = new ArrayBuffer(header.byteLength + fileBuffer.byteLength),
+	view = new Uint8Array(outputBuffer);
 	view.set(header, 0);
 	view.set(new Uint8Array(fileBuffer), header.byteLength);
 	var self = this;
-	
 	this.writeHandler(outputBuffer);
 };
 
@@ -89,13 +87,18 @@ App.prototype.get = function(path,cb) {
 };
 App.prototype.handle = function(acceptInfo) {
 	var self = this;
+	var buf2str = function(buffer) {
+		var str = '',
+			uArrayVal = new Uint8Array(buffer);
+		for (var s = 0; s < uArrayVal.length; s++) {
+			str += String.fromCharCode(uArrayVal[s]);
+		}
+		return str;
+	};
 	this.socket.read(acceptInfo.socketId, function(readInfo) {
 		var data = buf2str(readInfo.data);
 		var req = new Req(data);
 		var res = new Res({
-			socket: self.socket,
-			socketId: acceptInfo.socketId,
-			socketInfo: self.socketInfo,
 			writeHandler: function(outputBuffer) {
 				self.socket.write(acceptInfo.socketId,outputBuffer, function(writeInfo) {
 					self.socket.destroy(acceptInfo.socketId);
@@ -107,7 +110,7 @@ App.prototype.handle = function(acceptInfo) {
 		});
 		for(var i in self.routes) {
 			var route = i;
-			if(route = req.path) {
+			if(minimatch(req.path, route)) {
 				return self.routes[i](req,res);
 			}
 		}
@@ -126,6 +129,9 @@ App.prototype.listen = function(port) {
 		});
 	});
 };
+
+
+
 switch(env) {
 	case 'test':
 		if(typeof module !== 'undefined') {
@@ -139,8 +145,7 @@ switch(env) {
 	case 'prod':
 		var app = new App();
 
-		app.get('/', function(req,res) {
-			console.log(req,res);
+		app.get('**', function(req,res) {
 			res.send({
 				data: 'hello',
 				type: '.txt'
