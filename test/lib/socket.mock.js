@@ -1,3 +1,13 @@
+var str2buf = function(str) {
+	var buffer = new ArrayBuffer(str.length + 1),
+		bufferView = new Uint8Array(buffer);
+	for (var i = 0, strLen = str.length; i < strLen; i++) {
+		bufferView[i] = str.charCodeAt(i);
+	}
+	return buffer;
+}
+
+
 var Socket = function() {};
 Socket.prototype = {
 	create: function(type,options,cb) {
@@ -21,7 +31,12 @@ Socket.prototype = {
 		"Accept-Encoding: gzip,deflate,sdch\n" +
 		"Accept-Language: en-US,en;q=0.8\n" +
 		"Cookie: asdf";
-		infoHandler(mockData);
+		var data = str2buf(mockData);
+		var obj = {
+			data: data,
+			resultCode: 390
+		};
+		infoHandler(obj);
 	},
 	trigger: function(path) {
 		return this.handler(path);

@@ -27,10 +27,11 @@ describe('socket', function() {
 	describe('read', function() {
 		it('accepts a socket id and returns the request data to the handler', function() {
 			var data;
-			socket.read(1,function(mockData) {
-				data = mockData;
+			socket.read(1,function(obj) {
+				expect('data' in obj).toBe(true);
+				expect('resultCode' in obj).toBe(true);
 			});
-			expect(typeof data).toBe('string');
+			//expect(typeof data).toBe('string');
 		});
 	})
 });
