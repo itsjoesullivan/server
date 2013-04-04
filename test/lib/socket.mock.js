@@ -40,6 +40,9 @@ Socket.prototype = {
 	},
 	trigger: function(path) {
 		return this.handler(path);
+	},
+	destroy: function() {
+		
 	}
 };
 
