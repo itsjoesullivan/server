@@ -1,0 +1,15 @@
+{
+  "name": "serve",
+  "version": "1",
+  "manifest_version": 2,
+  "description": "file server",
+  "icons": {
+    "256": "images/icon-256.png"
+  },
+  "app": {
+    "background": {
+      "scripts": ["lib/minimatch.js","index.js"]
+    }
+  },
+  "permissions": ["experimental", {"socket":["tcp-connect", "tcp-listen"]}]
+}
